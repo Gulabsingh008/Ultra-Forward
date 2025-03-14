@@ -7,7 +7,7 @@ import logging
 import logging.config
 from database import db 
 from config import Config  
-from pyrogram import Client, __version__
+from pyrogram import Client, __version__, filters
 from pyrogram.raw.all import layer 
 from pyrogram.enums import ParseMode
 from pyrogram.errors import FloodWait 
@@ -50,9 +50,10 @@ class Bot(Client):
         text = "<b>๏[-ิ_•ิ]๏ ʙᴏᴛ ʀᴇsᴛᴀʀᴛᴇᴅ !</b>"
         logging.info(text)
         success = failed = 0
-#Dont Remove My Credit @Silicon_Bot_Update 
-#This Repo Is By @Silicon_Official 
-# For Any Kind Of Error Ask Us In Support Group @Silicon_Botz 
+
+        #Dont Remove My Credit @Silicon_Bot_Update 
+        #This Repo Is By @Silicon_Official 
+        # For Any Kind Of Error Ask Us In Support Group @Silicon_Botz 
         users = await db.get_all_frwd()
         async for user in users:
            chat_id = user['user_id']
@@ -70,17 +71,29 @@ class Bot(Client):
            logging.info(f"Restart message status"
                  f"success: {success}"
                  f"failed: {failed}")
-#Dont Remove My Credit @Silicon_Bot_Update 
-#This Repo Is By @Silicon_Official 
-# For Any Kind Of Error Ask Us In Support Group @Silicon_Botz 
+
     async def stop(self, *args):
         msg = f"@{self.username} stopped. Bye."
         await super().stop()
         logging.info(msg)
 
 app = Bot()
+
+# ✅ Auto Forward New Messages Feature ✅
+@app.on_message(filters.channel)
+async def auto_forward(client, message):
+    try:
+        for id in Config.CHANNELS:
+            from_channel, to_channel = id.split(":")
+            if message.chat.id == int(from_channel):  # चेक करें कि मैसेज सही चैनल से आया है
+                await message.copy(int(to_channel), as_copy=True)
+                logging.info(f"✅ Forwarded message from {from_channel} to {to_channel}")
+                await asyncio.sleep(1)  # स्पैम से बचने के लिए
+    except Exception as e:
+        logging.exception(f"⚠️ Error in forwarding: {e}")
+
 app.run()
 
 #Dont Remove My Credit @Silicon_Bot_Update 
 #This Repo Is By @Silicon_Official 
-# For Any Kind Of Error Ask Us In Support Group @Silicon_Botz 
+# For Any Kind Of Error Ask Us In Support Group @Silicon_Botz
