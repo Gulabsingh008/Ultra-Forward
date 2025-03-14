@@ -81,16 +81,25 @@ app = Bot()
 
 # ✅ Auto Forward New Messages Feature ✅
 @app.on_message(filters.channel)
-async def auto_forward(client, message):
+async def forward(client, message):
+    """हर नए मैसेज को यूज़र के सेट किए चैनल में भेजें"""
     try:
-        for id in Config.CHANNELS:
-            from_channel, to_channel = id.split(":")
-            if message.chat.id == int(from_channel):  # चेक करें कि मैसेज सही चैनल से आया है
-                await message.copy(int(to_channel), as_copy=True)
-                logging.info(f"✅ Forwarded message from {from_channel} to {to_channel}")
-                await asyncio.sleep(1)  # स्पैम से बचने के लिए
+        user_id = message.chat.id  # यूज़र की ID प्राप्त करें
+        user_data = await db.get_channels(user_id)  # यूज़र के सेट किए चैनल लाएं
+
+        if not user_data:
+            return  # अगर कोई डेटा नहीं मिला, तो कुछ न करें
+
+        from_channel = user_data["from_channel"]  # यूज़र द्वारा सेट Source Channel
+        to_channel = user_data["to_channel"]  # यूज़र द्वारा सेट Target Channel
+
+        if message.chat.id == int(from_channel):
+            await message.copy(int(to_channel))  # मैसेज को Target Channel में भेजें
+            print(f"✅ Message Forwarded: {from_channel} → {to_channel}")
+    
     except Exception as e:
-        logging.exception(f"⚠️ Error in forwarding: {e}")
+        print(f"❌ Error in Forwarding: {e}")
+
 
 app.run()
 
