@@ -1,2 +1,2 @@
-worker: python3 bot.py && hold.py
+worker: python3 bot.py && python3 hold.py
 
